@@ -35,7 +35,7 @@ public class BulkAddSchemes {
         bseHash.put(5, "isinNo");
         bseHash.put(6, "amcCode");
         bseHash.put(7, "schemeName");
-        bseHash.put(8, "purchase_transaction_modepurchaseTransactionMode");
+        bseHash.put(8, "purchaseTransactionMode");
         bseHash.put(9, "minPurchaseAmt");
         bseHash.put(10, "additionalPurchaseAmtMultiple");
         bseHash.put(11, "maxPurchaseAmt");
@@ -60,7 +60,7 @@ public class BulkAddSchemes {
         bseHash.put(30, "updatedTimestamp");
         bseHash.put(31, "redeemSchemeCode");
         bseHash.put(32, "minRedeemAmt");
-        bseHash.put(33, "maxRedemptionAmt");
+        bseHash.put(33, "maxRedemptionAmount");
         bseHash.put(34, "exitLoad");
         bseHash.put(35, "lockInPeriod");
         bseHash.put(36, "switchFlag");
@@ -146,7 +146,8 @@ public class BulkAddSchemes {
 
                 //Getting scheme category details
                 r = additional.getRow(i);
-                request.put("suggestionCategory", r.getCell(0).getNumericCellValue());
+                request.put("suggestionCategoryOneTime", r.getCell(0).getNumericCellValue());
+                request.put("suggestionCategorySIP", r.getCell(1).getNumericCellValue());
                 request.put("adminPassword", "th!5is5p@rta");
 
 
@@ -158,6 +159,8 @@ public class BulkAddSchemes {
                 int status = response.code();
                 String output = response.body().string();
                 System.out.println(status + " " + output);
+                r.createCell(3).setCellValue(status);
+                r.createCell(4).setCellValue(output);
 
             }
 
@@ -176,7 +179,7 @@ public class BulkAddSchemes {
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, request.toString());
-        String localUrl = "http://localhost:8080/cashrich/scheme/addScheme.json?uname=crdev&pwd=crdev567";
+        String localUrl = "http://192.168.1.37:8080/cashrich/scheme/addScheme.json?uname=crdev&pwd=crdev567";
         Request requestHttp = new Request.Builder()
                 .url(localUrl)
                 .method("POST", body)
@@ -189,6 +192,9 @@ public class BulkAddSchemes {
         JSONObject sipSchemeMaster = new JSONObject();
 
         for (int j = 0; j <= 18; j++) {
+
+            if (j == 1)
+                continue;
             Cell c = r.getCell(j);
 
             if (c != null) {
