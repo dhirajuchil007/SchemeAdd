@@ -12,21 +12,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
-public class BulkAddSchemes {
+public class UpdateSIPSchemes {
     public static void main(String[] args) throws IOException {
 
-        Workbook wb = new XSSFWorkbook("quant small cap add scheme.xlsx");
-        String adminPwd
-                //= "th!5is5p@rta";
-                = "6Cc9r53fXn";
+        Workbook wb = new XSSFWorkbook("SIPData.xlsx");
+        String adminPwd = //"th!5is5p@rta";
+                "6Cc9r53fXn";
 
         FileOutputStream fout = new FileOutputStream("out.xlsx");
 
         //getall sheets
-        Sheet bseSheet = wb.getSheetAt(0);
-        Sheet schemeMasterSheet = wb.getSheetAt(1);
-        Sheet sipSchemeSheet = wb.getSheetAt(2);
-        Sheet additional = wb.getSheetAt(3);
+       /* Sheet bseSheet = wb.getSheetAt(0);
+        Sheet schemeMasterSheet = wb.getSheetAt(1);*/
+        Sheet sipSchemeSheet = wb.getSheetAt(0);
+      //  Sheet additional = wb.getSheetAt(3);
 
         //Bse cells map
         HashMap<Integer, String> bseHash = new HashMap<>();
@@ -67,7 +66,6 @@ public class BulkAddSchemes {
         bseHash.put(34, "exitLoad");
         bseHash.put(35, "lockInPeriod");
         bseHash.put(36, "switchFlag");
-        bseHash.put(37, "channelPartnerCode");
 
         //keep track of clums that are numeric
         Integer[] bseNumeric = {1, 9, 10, 11, 15, 16, 17, 21, 28, 32, 33, 34, 35};
@@ -119,10 +117,10 @@ public class BulkAddSchemes {
         sipHash.put(17, "sipRating");
         sipHash.put(18, "schemeReturn");
 
-        Integer sipSchemeNmeric[] = {3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17};
+        Integer sipSchemeNmeric[] = {6,7,9,11,12,13,14,15,16,17,18,19,20,23};
         HashSet<Integer> sipSchemeSet = new HashSet<>(Arrays.asList(sipSchemeNmeric));
 
-        Row r = bseSheet.getRow(0);
+        Row r = sipSchemeSheet.getRow(0);
         int start = 0, end = 0;
 
         Scanner sc = new Scanner(System.in);
@@ -134,16 +132,18 @@ public class BulkAddSchemes {
 
 
             for (int i = start; i <= end; i++) {
-                //Creating bse object
-                r = bseSheet.getRow(i);
                 JSONObject request = new JSONObject();
+
+                //Creating bse object
+     /*           r = bseSheet.getRow(i);
+
                 createBSeObject(bseHash, bseNumericSet, r, request);
 
 
                 //creating scheme master object
                 r = schemeMasterSheet.getRow(i);
                 createOneTimeObject(schemeMasterHash, schemeMasterSet, r, request);
-
+*/
                 //creating sip scheme master
                 r = sipSchemeSheet.getRow(i);
                 if (r.getCell(20) == null || (int) r.getCell(20).getNumericCellValue() != 1) {
@@ -152,9 +152,9 @@ public class BulkAddSchemes {
 
 
                 //Getting scheme category details
-                r = additional.getRow(i);
-                request.put("suggestionCategoryOneTime", r.getCell(0).getNumericCellValue());
-                request.put("suggestionCategorySIP", r.getCell(1).getNumericCellValue());
+               // r = additional.getRow(i);
+            //    request.put("suggestionCategoryOneTime", r.getCell(0).getNumericCellValue());
+               request.put("schemeMfMappingId", r.getCell(7).getNumericCellValue());
 
                 request.put("adminPassword", adminPwd);
 
@@ -171,8 +171,8 @@ public class BulkAddSchemes {
                 JSONObject status = jsonObject.getJSONObject("status");
                 String code = status.getString("code");
                 System.out.println(i + " " + code + " " + output);
-                r.createCell(3).setCellValue(code);
-                r.createCell(4).setCellValue(output);
+                r.createCell(28).setCellValue(code);
+                r.createCell(29).setCellValue(output);
 
             }
 
@@ -191,9 +191,9 @@ public class BulkAddSchemes {
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, request.toString());
-        String localUrl = "http://192.168.1.37:8080/cashrich/scheme/addScheme.json?uname=crdev&pwd=crdev567";
-        String smokeUrl = "https://sougatabasu.com/cashrich//scheme/addScheme.json?uname=User@sm0k3&pwd=$mokeP@ss2020";
-        String cronUrl = "https://cron.cashrichapp.in/cashrich//scheme/addScheme.json?uname=pR0D@U53r!2o2o&pwd=Pr0d@Pa55!2o2o";
+        String localUrl = "http://192.168.1.37:8080/cashrich/scheme/updateScheme.json?uname=crdev&pwd=crdev567";
+        String smokeUrl = "https://sougatabasu.com/cashrich//scheme/updateScheme.json?uname=User@sm0k3&pwd=$mokeP@ss2020";
+        String cronUrl = "https://cron.cashrichapp.in/cashrich//scheme/updateScheme.json?uname=pR0D@U53r!2o2o&pwd=Pr0d@Pa55!2o2o";
         Request requestHttp = new Request.Builder()
                 .url(cronUrl)
                 .method("POST", body)
@@ -205,18 +205,17 @@ public class BulkAddSchemes {
     private static void createSipObject(HashMap<Integer, String> sipHash, HashSet<Integer> sipSchemeSet, Row r, JSONObject request) throws JSONException {
         JSONObject sipSchemeMaster = new JSONObject();
 
-        for (int j = 0; j <= 18; j++) {
+        for (int j = 6; j <= 24; j++) {
 
-            if (j == 1)
-                continue;
+           // System.out.println(j);
             Cell c = r.getCell(j);
 
             if (c != null) {
                 if (sipSchemeSet.contains(j)) {
-                    sipSchemeMaster.put(sipHash.get(j), c.getNumericCellValue());
+                    sipSchemeMaster.put(sipHash.get(j-6), c.getNumericCellValue());
                 } else {
                     c.setCellType(CellType.STRING);
-                    sipSchemeMaster.put(sipHash.get(j), c.getStringCellValue());
+                    sipSchemeMaster.put(sipHash.get(j-6), c.getStringCellValue());
                 }
             }
 
@@ -228,7 +227,6 @@ public class BulkAddSchemes {
     private static void createOneTimeObject(HashMap<Integer, String> schemeMasterHash, HashSet<Integer> schemeMasterSet, Row r, JSONObject request) throws JSONException {
         JSONObject schemeMaster = new JSONObject();
         for (int j = 0; j <= 13; j++) {
-            System.out.println(j);
             Cell c = r.getCell(j);
             if (c != null) {
                 if (schemeMasterSet.contains(j)) {
@@ -248,7 +246,7 @@ public class BulkAddSchemes {
 
 
         JSONObject bseSchemeMaster = new JSONObject();
-        for (int j = 0; j <= 37; j++) {
+        for (int j = 0; j <= 36; j++) {
             Cell c = r.getCell(j);
 
             if (c != null) {
