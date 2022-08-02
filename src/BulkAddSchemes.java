@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class BulkAddSchemes {
     public static void main(String[] args) throws IOException {
 
-        Workbook wb = new XSSFWorkbook("quant small cap add scheme.xlsx");
+        Workbook wb = new XSSFWorkbook("Aditya Birla Sun Life Nifty SDL Plus PSU Bond Sep 2026 60 40 Index Fund.xlsx");
         String adminPwd
                 //= "th!5is5p@rta";
                 = "6Cc9r53fXn";
@@ -146,9 +146,12 @@ public class BulkAddSchemes {
 
                 //creating sip scheme master
                 r = sipSchemeSheet.getRow(i);
-                if (r.getCell(20) == null || (int) r.getCell(20).getNumericCellValue() != 1) {
-                    createSipObject(sipHash, sipSchemeSet, r, request);
-                }
+				
+				  if (r.getCell(20) == null || (int) r.getCell(20).getNumericCellValue() != 1)
+				  { createSipObject(sipHash, sipSchemeSet, r, request);
+					  }
+				  
+				 
 
 
                 //Getting scheme category details
@@ -166,7 +169,7 @@ public class BulkAddSchemes {
                 Response response = callApi(request);
 
                 String output = response.body().string();
-                System.out.println(output);
+                System.out.println("output: "+output);
                 JSONObject jsonObject = new JSONObject(output);
                 JSONObject status = jsonObject.getJSONObject("status");
                 String code = status.getString("code");
@@ -193,7 +196,7 @@ public class BulkAddSchemes {
         RequestBody body = RequestBody.create(mediaType, request.toString());
         String localUrl = "http://192.168.1.37:8080/cashrich/scheme/addScheme.json?uname=crdev&pwd=crdev567";
         String smokeUrl = "https://sougatabasu.com/cashrich//scheme/addScheme.json?uname=User@sm0k3&pwd=$mokeP@ss2020";
-        String cronUrl = "https://cron.cashrichapp.in/cashrich//scheme/addScheme.json?uname=pR0D@U53r!2o2o&pwd=Pr0d@Pa55!2o2o";
+        String cronUrl = "https://cashrichapp.in/cashrich//scheme/addScheme.json?uname=u53R@PR0d!2!2!&pwd=Pa55@PR0d!2!2!";
         Request requestHttp = new Request.Builder()
                 .url(cronUrl)
                 .method("POST", body)
@@ -213,6 +216,7 @@ public class BulkAddSchemes {
 
             if (c != null) {
                 if (sipSchemeSet.contains(j)) {
+                    c.setCellType(CellType.NUMERIC);
                     sipSchemeMaster.put(sipHash.get(j), c.getNumericCellValue());
                 } else {
                     c.setCellType(CellType.STRING);
@@ -249,8 +253,9 @@ public class BulkAddSchemes {
 
         JSONObject bseSchemeMaster = new JSONObject();
         for (int j = 0; j <= 37; j++) {
+        	
             Cell c = r.getCell(j);
-
+            System.out.print(j+" ");
             if (c != null) {
                 if (bseNumericSet.contains(j)) {
                     bseSchemeMaster.put(bseHash.get(j), r.getCell(j).getNumericCellValue());
